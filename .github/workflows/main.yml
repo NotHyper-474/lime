@@ -69,6 +69,66 @@ jobs:
             templates/bin/hl/Linux64
           if-no-files-found: error
 
+  macos-ndll:
+    runs-on: macos-11
+    steps:
+
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - uses: krdlab/setup-haxe@v1
+        with:
+          haxe-version: 4.2.5
+
+      - name: Set HAXEPATH
+        run: |
+          echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
+
+      - name: Install Haxe dependencies
+        run: |
+          pushd project/lib/hashlink
+          brew update
+          rm /usr/local/bin/2to3*
+          rm /usr/local/bin/idle3*
+          rm /usr/local/bin/pydoc3*
+          rm /usr/local/bin/python3*
+          brew bundle
+          popd
+          haxelib install hxcpp 4.2.1 --quiet
+          haxelib install format --quiet
+          haxelib install hxp --quiet
+
+      - name: Enable HXCPP compile cache
+        run: |
+          echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
+
+      - name: Rebuild Lime tools
+        run: |
+          haxelib dev lime $GITHUB_WORKSPACE
+          haxelib run lime rebuild tools -nocolor -verbose -nocffi
+          haxelib run lime setup -alias -y -nocffi
+
+      - name: Rebuild Lime (macOS)
+        run: |
+          lime rebuild macos -clean -release -64 -nocolor -verbose -nocffi
+          lime rebuild hl -clean -release -nocolor -verbose -nocffi
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Mac64-NDLL
+          path: |
+            ndll/Mac64/
+            !**/.gitignore
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Mac64-Hashlink
+          path: |
+            templates/bin/hl/Mac64
+          if-no-files-found: error
+
   windows-ndll:
     runs-on: windows-latest
     steps:
@@ -135,9 +195,128 @@ jobs:
           path: |
             templates/bin/hl/Windows64
           if-no-files-found: error
-          
+
+  android-ndll:
+    needs: macos-ndll
+    runs-on: macos-11
+    steps:
+
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Install Android NDK
+        uses: nttld/setup-ndk@v1
+        id: setup-ndk
+        with:
+          ndk-version: r15c
+
+      - uses: actions/setup-java@v3
+        with:
+          distribution: "zulu"
+          java-version: 8
+
+      - uses: krdlab/setup-haxe@v1
+        with:
+          haxe-version: 4.2.5
+
+      - name: Set HAXEPATH
+        run: |
+          echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
+
+      - name: Install Haxe dependencies
+        run: |
+          haxelib install hxcpp 4.2.1 --quiet
+          haxelib install format --quiet
+          haxelib install hxp --quiet
+
+      - name: Enable HXCPP compile cache
+        run: |
+          echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
+
+      - name: Rebuild Lime tools
+        run: |
+          haxelib dev lime $GITHUB_WORKSPACE
+          haxelib run lime rebuild tools -nocolor -verbose -nocffi
+          haxelib run lime setup -alias -y -nocffi
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: Mac64-NDLL
+          path: ndll/Mac64/
+
+      - name: Configure Android support
+        run: |
+          lime config ANDROID_SDK $ANDROID_HOME
+          lime config ANDROID_NDK_ROOT ${{ steps.setup-ndk.outputs.ndk-path }}
+          lime config JAVA_HOME $JAVA_HOME
+          lime config ANDROID_SETUP true
+          lime config
+
+      - name: Rebuild Lime (Android)
+        run: |
+          lime rebuild android -release -nocolor -verbose -nocffi
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Android-NDLL
+          path: |
+            ndll/Android/
+            !**/.gitignore
+          if-no-files-found: error
+
+  ios-ndll:
+    needs: macos-ndll
+    runs-on: macos-11
+    steps:
+
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - uses: krdlab/setup-haxe@v1
+        with:
+          haxe-version: 4.2.5
+
+      - name: Set HAXEPATH
+        run: |
+          echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
+
+      - name: Install Haxe dependencies
+        run: |
+          haxelib install hxcpp 4.2.1 --quiet
+          haxelib install format --quiet
+          haxelib install hxp --quiet
+
+      - name: Enable HXCPP compile cache
+        run: |
+          echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
+
+      - name: Rebuild Lime tools
+        run: |
+          haxelib dev lime $GITHUB_WORKSPACE
+          haxelib run lime rebuild tools -nocolor -verbose -nocffi
+          haxelib run lime setup -alias -y -nocffi
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: Mac64-NDLL
+          path: ndll/Mac64/
+
+      - name: Rebuild Lime (iOS)
+        run: |
+          lime rebuild ios -clean -release -verbose -nocolor
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: iPhone-NDLL
+          path: |
+            ndll/iPhone/
+            !**/.gitignore
+          if-no-files-found: error
+
   package-haxelib:
-    needs: [linux-ndll, windows-ndll]
+    needs: [linux-ndll, macos-ndll, windows-ndll, android-ndll, ios-ndll]
     runs-on: macos-11
     steps:
 
@@ -169,6 +348,15 @@ jobs:
           haxelib run lime rebuild tools -nocolor -verbose -nocffi
           haxelib run lime setup -alias -y -nocffi
           cp project/lib/hashlink/other/osx/entitlements.xml templates/bin/hl/entitlements.xml
+      - uses: actions/download-artifact@v3
+        with:
+          name: Android-NDLL
+          path: ndll/Android/
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: iPhone-NDLL
+          path: ndll/iPhone/
 
       - uses: actions/download-artifact@v3
         with:
