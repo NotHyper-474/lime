@@ -49,6 +49,10 @@
 #include <utils/compress/Zlib.h>
 #include <vm/NekoVM.h>
 
+#ifdef LIME_SDL_SOUND
+#include <media/decoders/SDL_sound.h>
+#endif
+
 #ifdef HX_WINDOWS
 #include <locale>
 #include <codecvt>
@@ -387,6 +391,14 @@ namespace lime {
 		bytes.Set (data);
 		resource = Resource (&bytes);
 
+		#ifdef LIME_SDL_SOUND
+		if (SDL_sound::Decode (&resource, &audioBuffer)) {
+
+			return audioBuffer.Value (buffer);
+
+		}
+		#endif
+
 		if (WAV::Decode (&resource, &audioBuffer)) {
 
 			return audioBuffer.Value (buffer);
@@ -409,6 +421,14 @@ namespace lime {
 	HL_PRIM AudioBuffer* HL_NAME(hl_audio_load_bytes) (Bytes* data, AudioBuffer* buffer) {
 
 		Resource resource = Resource (data);
+
+		#ifdef LIME_SDL_SOUND
+		if (SDL_sound::Decode (&resource, buffer)) {
+
+			return buffer;
+
+		}
+		#endif
 
 		if (WAV::Decode (&resource, buffer)) {
 
@@ -437,6 +457,14 @@ namespace lime {
 
 		resource = Resource (val_string (data));
 
+		#ifdef LIME_SDL_SOUND
+		if (SDL_sound::Decode (&resource, &audioBuffer)) {
+
+			return audioBuffer.Value (buffer);
+
+		}
+		#endif
+
 		if (WAV::Decode (&resource, &audioBuffer)) {
 
 			return audioBuffer.Value (buffer);
@@ -459,6 +487,14 @@ namespace lime {
 	HL_PRIM AudioBuffer* HL_NAME(hl_audio_load_file) (hl_vstring* data, AudioBuffer* buffer) {
 
 		Resource resource = Resource (data ? hl_to_utf8 ((const uchar*)data->bytes) : NULL);
+
+		#ifdef LIME_SDL_SOUND
+		if (SDL_sound::Decode (&resource, buffer)) {
+
+			return buffer;
+
+		}
+		#endif
 
 		if (WAV::Decode (&resource, buffer)) {
 
