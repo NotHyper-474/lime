@@ -1,12 +1,36 @@
 Changelog
 =========
 
-8.2.1 (10/??/2024)
+8.2.2 (12/19/2024)
 ------------------
 
-* Fixed paths for ndll on Raspberry pi
-* Fixed `BackgroundWorker`conditional on hl to use threads only for haxe4
+* Fixed broken breakpoints in HTML5 debug builds.
+* Fixed unecessary operations in `Promise` by inlining some getter functions.
+* Fixed failure to read `gradle-plugin` attribute in `<config:android>` tag.
+* Fixed failed installation of app on iOS Simulator by choosing only simulators that are considered available.
+* Fixed `lime test ios` to install and launch on a device when using Xcode 16 or newer.
+* Fixed reported version of OpenAL library.
+* Fixed memory cleanup when encoding PNG and JPEG images.
+* Fixed error reporting `@rpath/libhl.dylib` not found on macOS when using HashLink nightly build.
+* Fixed building HashLink on macOS that required cleaning between compiles.
+* Fixed `embedBytes()` macro incorrectly running when `embedByteArray()` macro was also running.
+* Fixed `ImageDataUtil.copyPixels()` causing crash on HashLink.
+* Fixed missing `neko` target flag when cross-compiling to Windows without `-mingw` or `-cpp` flags.
+* Fixed occasional failure running Lime tools by switching certain paths from relative to absolute.
+* Fixed missing warning when `lime rebuild` commands fail because C++ source is not available from Haxelib.
+* Fixed command instructions to specify requirement for absolute paths when setting up a platform.
+* Added detection of `-cpp` flag when cross-compiling to Windows, which works like `-mingw`.
+* Updated FreeType submodule to version 2.12.1 again. Resolved issues encountered when using this version in Lime 8.2.0.
 
+8.2.1 (11/01/2024)
+------------------
+
+* Fixed `Sys.exit()` causing hang instead of exiting application.
+* Fixed paths for _.ndll_ files when targeting Raspberry Pi.
+* Fixed compiling `BackgroundWorker` when targeting HashLink before Haxe 4.
+* Fixed errors compiling `ThreadPool` for HashLink with Haxe 4.0 and 4.1.
+* Fixed `Font.renderGlyph` to support 32-bit colors, including alpha.
+* Fixed OpenFL line height issues by rolling back FreeType submodule to version 2.9.1.
 
 8.2.0 (10/21/2024)
 ------------------
