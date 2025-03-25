@@ -7,16 +7,21 @@ namespace lime {
 
 
 	bool SDL_sound::Decode (Resource *resource, AudioBuffer *audioBuffer) {
-
 		Sound_Sample* sample = NULL;
+		// The OGG decoder also returns 16-bit signed samples so why not?
+		Sound_AudioInfo desired = {
+			AUDIO_S16LSB,
+			0, // channels, blank for SDL_sound to determine
+			0, // sample ratio
+		};
 
 		if (resource->path) {
 
-			sample = Sound_NewSampleFromFile(resource->path, NULL, 65536);
+			sample = Sound_NewSampleFromFile(resource->path, &desired, 65536);
 
 		} else {
 
-			sample = Sound_NewSampleFromMem(resource->data->b, resource->data->length, NULL, NULL, 65536);
+			sample = Sound_NewSampleFromMem(resource->data->b, resource->data->length, NULL, &desired, 65536);
 
 		}
 
@@ -27,10 +32,10 @@ namespace lime {
 
 		}
 
-		audioBuffer->sampleRate = (int)sample->actual.rate;
-		audioBuffer->channels = sample->actual.channels;
+		audioBuffer->sampleRate = (int)sample->desired.rate;
+		audioBuffer->channels = (int)sample->desired.channels;
 
-		switch (sample->actual.format)
+		switch (sample->desired.format)
 		{
 			case AUDIO_U8:
 			case AUDIO_S8:
@@ -52,13 +57,17 @@ namespace lime {
 		}
 
 		// TODO: Add support for streaming sound in higher APIs
+		Sint32 duration = Sound_GetDuration(sample);
+		if (duration == -1)
+		{
+			LOG_SOUND("SDL_sound: Error getting duration: %s\n", Sound_GetError());
+			Sound_FreeSample(sample);
+			return false;
+		}
 		// TODO: This seems a few bits short?
-		Uint32 dataLength = (Sound_GetDuration (sample) * audioBuffer->sampleRate * audioBuffer->channels * (audioBuffer->bitsPerSample / 8)) / 1000;
+		Uint32 dataLength = (duration * audioBuffer->sampleRate * audioBuffer->channels * (audioBuffer->bitsPerSample / 8)) / 1000;
 
-		// audioBuffer->data->Resize (dataLength);
-		// unsigned char* bytes = audioBuffer->data->buffer->b;
-		unsigned char* bytes = NULL;
-
+		Uint8* bytes = NULL;
 		Uint32 bytesWritten = 0;
 		Uint32 decodedBytes = 0;
 		Uint8* decodedPtr = NULL;
@@ -96,9 +105,6 @@ namespace lime {
 		}
 
 		Sound_FreeSample(sample);
-		return true;
-
+		return decodedBytes != 0;
 	}
-
-
 }
