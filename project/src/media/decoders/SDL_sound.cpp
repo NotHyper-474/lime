@@ -65,46 +65,43 @@ namespace lime {
 			return false;
 		}
 		// TODO: This seems a few bits short?
-		Uint32 dataLength = (duration * audioBuffer->sampleRate * audioBuffer->channels * (audioBuffer->bitsPerSample / 8)) / 1000;
+		//Uint32 dataLength = (duration * audioBuffer->sampleRate * audioBuffer->channels * (audioBuffer->bitsPerSample / 8)) / 1000;
 
 		Uint8* bytes = NULL;
 		Uint32 bytesWritten = 0;
 		Uint32 decodedBytes = 0;
 		Uint8* decodedPtr = NULL;
 
-		while (bytesWritten < dataLength) {
+		do
+		{
+			decodedBytes = Sound_Decode(sample);
 
-			if (((sample->flags & SOUND_SAMPLEFLAG_ERROR) == 0) && ((sample->flags & SOUND_SAMPLEFLAG_EOF) == 0)) {
-
-                decodedBytes = Sound_Decode(sample);
-                decodedPtr = (unsigned char*)sample->buffer;
-
-            }
-
-            if (decodedBytes == 0)
-            {
-                // memset(bytes + bytesWritten, '\0', dataLength - bytesWritten);  /* write silence. */
-                break;
-            }
-			else
+			if (sample->flags & SOUND_SAMPLEFLAG_EAGAIN)
 			{
-				Uint32 copySize = decodedBytes;
-				// int copySize = dataLength - bytesWritten;
-				// if (copySize > decodedBytes) copySize = decodedBytes;
-
-				audioBuffer->data->Resize (bytesWritten + copySize);
-				bytes = audioBuffer->data->buffer->b;
-
-				memcpy(bytes + bytesWritten, decodedPtr, copySize);
-
-				bytesWritten += copySize;
-				decodedPtr += copySize;
-				decodedBytes -= copySize;
+				continue;
 			}
 
-		}
+			if (sample->flags & SOUND_SAMPLEFLAG_ERROR)
+			{
+				LOG_SOUND("SDL_sound Error: %s\n", Sound_GetError());
+				break;
+			}
+
+			if (decodedBytes > 0)
+			{
+				Uint32 copySize = decodedBytes;
+
+				audioBuffer->data->Resize(bytesWritten + copySize);
+				bytes = audioBuffer->data->buffer->b;
+
+				memcpy(bytes + bytesWritten, sample->buffer, copySize);
+
+				bytesWritten += copySize;
+			}
+
+		} while (!(sample->flags & SOUND_SAMPLEFLAG_EOF));
 
 		Sound_FreeSample(sample);
-		return decodedBytes != 0;
+		return bytesWritten > 0;
 	}
 }
