@@ -21,7 +21,8 @@ namespace lime {
 
 		} else {
 
-			sample = Sound_NewSampleFromMem(resource->data->b, resource->data->length, NULL, &desired, 65536);
+			// FIXME: WAV files require ext to work due to a bug in SDL_sound
+			sample = Sound_NewSampleFromMem(resource->data->b, resource->data->length, "wav", &desired, 65536);
 
 		}
 
@@ -44,6 +45,8 @@ namespace lime {
 
 			case AUDIO_F32LSB:
 			case AUDIO_F32MSB:
+			case AUDIO_S32LSB:
+			case AUDIO_S32MSB:
 				audioBuffer->bitsPerSample = 32;
 				break;
 
@@ -57,6 +60,8 @@ namespace lime {
 		}
 
 		// TODO: Add support for streaming sound in higher APIs
+
+		// TODO: Do we care if duration can't be retrieved?
 		Sint32 duration = Sound_GetDuration(sample);
 		if (duration == -1)
 		{
@@ -69,19 +74,17 @@ namespace lime {
 
 		Uint8* bytes = NULL;
 		Uint32 bytesWritten = 0;
-		Uint32 decodedBytes = 0;
-		Uint8* decodedPtr = NULL;
 
 		do
 		{
-			decodedBytes = Sound_Decode(sample);
+			Uint32 decodedBytes = Sound_Decode(sample);
 
-			if (sample->flags & SOUND_SAMPLEFLAG_EAGAIN)
+			if ((sample->flags & SOUND_SAMPLEFLAG_EAGAIN))
 			{
 				continue;
 			}
 
-			if (sample->flags & SOUND_SAMPLEFLAG_ERROR)
+			if ((sample->flags & SOUND_SAMPLEFLAG_ERROR))
 			{
 				LOG_SOUND("SDL_sound Error: %s\n", Sound_GetError());
 				break;
@@ -99,7 +102,7 @@ namespace lime {
 				bytesWritten += copySize;
 			}
 
-		} while (!(sample->flags & SOUND_SAMPLEFLAG_EOF));
+		} while ((sample->flags & SOUND_SAMPLEFLAG_EOF) == 0);
 
 		Sound_FreeSample(sample);
 		return bytesWritten > 0;
