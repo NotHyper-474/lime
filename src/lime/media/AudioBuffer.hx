@@ -33,10 +33,10 @@ import flash.net.URLRequest;
 #end
 
 /**
-	The `AudioBuffer` class represents a buffer of audio data that can be played back using an `AudioSource`. 
+	The `AudioBuffer` class represents a buffer of audio data that can be played back using an `AudioSource`.
 	It supports a variety of audio formats and platforms, providing a consistent API for loading and managing audio data.
 
-	Depending on the platform, the audio backend may differ, but the class provides a unified interface for accessing 
+	Depending on the platform, the audio backend may differ, but the class provides a unified interface for accessing
 	audio data, whether it's stored in memory, loaded from a file, or streamed.
 
 	@see lime.media.AudioSource
@@ -62,6 +62,9 @@ class AudioBuffer
 		The sample rate of the audio data, in Hz.
 	**/
 	public var sampleRate:Int;
+
+	/** The format the audio uses, can be either PCM (1) or IEEE754 (3)**/
+	public var dataFormat:AudioBufferDataFormat;
 
 	/**
 		The source of the audio data. This can be an `Audio`, `Sound`, `Howl`, or other platform-specific object.
@@ -145,6 +148,7 @@ class AudioBuffer
 			audioBuffer.channels = data.channels;
 			audioBuffer.data = new UInt8Array(@:privateAccess new Bytes(data.data.length, data.data.b));
 			audioBuffer.sampleRate = data.sampleRate;
+			audioBuffer.dataFormat = data.dataFormat;
 			return audioBuffer;
 		}
 		#end
@@ -287,7 +291,7 @@ class AudioBuffer
 		@return An `AudioBuffer` instance with the decoded audio data.
 	**/
 	#if lime_vorbis
-		
+
 	public static function fromVorbisFile(vorbisFile:VorbisFile):AudioBuffer
 	{
 		if (vorbisFile == null) return null;

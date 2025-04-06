@@ -10,7 +10,7 @@ namespace lime {
 		Sound_Sample* sample = NULL;
 		// The OGG decoder also returns 16-bit signed samples so why not?
 		Sound_AudioInfo desired = {
-			AUDIO_S16LSB,
+			0,//AUDIO_S16LSB,
 			0, // channels, blank for SDL_sound to determine
 			0, // sample ratio
 		};
@@ -21,7 +21,7 @@ namespace lime {
 
 		} else {
 
-			// FIXME: WAV files require ext to work due to a bug in SDL_sound
+			// FIXME?: WAV files require ext to work due to a bug in SDL_sound
 			sample = Sound_NewSampleFromMem(resource->data->b, resource->data->length, "wav", &desired, 65536);
 
 		}
@@ -41,13 +41,18 @@ namespace lime {
 			case AUDIO_U8:
 			case AUDIO_S8:
 				audioBuffer->bitsPerSample = 8;
+				audioBuffer->dataFormat = 1;
 				break;
 
 			case AUDIO_F32LSB:
 			case AUDIO_F32MSB:
+				audioBuffer->bitsPerSample = 32;
+				audioBuffer->dataFormat = 3;
+				break;
 			case AUDIO_S32LSB:
 			case AUDIO_S32MSB:
 				audioBuffer->bitsPerSample = 32;
+				audioBuffer->dataFormat = 1;
 				break;
 
 			case AUDIO_U16LSB:
@@ -56,6 +61,7 @@ namespace lime {
 			case AUDIO_S16MSB:
 			default:
 				audioBuffer->bitsPerSample = 16;
+				audioBuffer->dataFormat = 1;
 				break;
 		}
 
