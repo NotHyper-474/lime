@@ -30,7 +30,6 @@ namespace lime {
 			static void GCExitBlocking ();
 			static void GCTryEnterBlocking ();
 			static void GCTryExitBlocking ();
-			static int GetTicks ();
 			static bool GetAllowScreenTimeout ();
 			static std::wstring* GetDeviceModel ();
 			static std::wstring* GetDeviceVendor ();
@@ -46,6 +45,7 @@ namespace lime {
 			static std::wstring* GetPlatformName ();
 			static std::wstring* GetPlatformVersion ();
 			static double GetTimer ();
+			static double GetTimerNS();
 			#if defined(HX_WINDOWS) && !defined (HX_WINRT)
 			static int GetWindowsConsoleMode (int handleType);
 			#endif

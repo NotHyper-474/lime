@@ -424,6 +424,7 @@ namespace lime {
 					gamepadEvent.type = GAMEPAD_BUTTON_DOWN;
 					gamepadEvent.button = event->gbutton.button;
 					gamepadEvent.id = event->gbutton.which;
+					gamepadEvent.timestamp = event->gbutton.timestamp;
 
 					GamepadEvent::Dispatch (&gamepadEvent);
 					break;
@@ -433,6 +434,7 @@ namespace lime {
 					gamepadEvent.type = GAMEPAD_BUTTON_UP;
 					gamepadEvent.button = event->gbutton.button;
 					gamepadEvent.id = event->gbutton.which;
+					gamepadEvent.timestamp = event->gbutton.timestamp;
 
 					GamepadEvent::Dispatch (&gamepadEvent);
 					break;
@@ -575,6 +577,7 @@ namespace lime {
 			keyEvent.keyCode = event->key.key;
 			keyEvent.modifier = event->key.mod;
 			keyEvent.windowID = event->key.windowID;
+			keyEvent.timestamp = event->key.timestamp;
 
 			if (keyEvent.type == KEY_DOWN) {
 

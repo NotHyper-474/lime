@@ -2714,18 +2714,6 @@ namespace lime {
 
 	}
 
-	int lime_sdl_get_ticks () {
-
-		return System::GetTicks();
-
-	}
-
-
-	HL_PRIM int HL_NAME(hl_sdl_get_ticks) () {
-
-		return System::GetTicks();
-
-	}
 
 	bool lime_system_get_allow_screen_timeout () {
 
@@ -3054,6 +3042,19 @@ namespace lime {
 	HL_PRIM double HL_NAME(hl_system_get_timer) () {
 
 		return System::GetTimer ();
+
+	}
+
+	double lime_system_get_timer_ns () {
+
+		return System::GetTimerNS ();
+
+	}
+
+
+	HL_PRIM double HL_NAME(hl_system_get_timer_ns) () {
+
+		return System::GetTimerNS ();
 
 	}
 
@@ -4066,7 +4067,6 @@ namespace lime {
 	DEFINE_PRIME3 (lime_png_decode_file);
 	DEFINE_PRIME2v (lime_render_event_manager_register);
 	DEFINE_PRIME2v (lime_sensor_event_manager_register);
-	DEFINE_PRIME0 (lime_sdl_get_ticks);
 	DEFINE_PRIME0 (lime_system_get_allow_screen_timeout);
 	DEFINE_PRIME0 (lime_system_get_device_model);
 	DEFINE_PRIME0 (lime_system_get_device_vendor);
@@ -4079,6 +4079,7 @@ namespace lime {
 	DEFINE_PRIME0 (lime_system_get_platform_name);
 	DEFINE_PRIME0 (lime_system_get_platform_version);
 	DEFINE_PRIME0 (lime_system_get_timer);
+	DEFINE_PRIME0 (lime_system_get_timer_ns);
 	DEFINE_PRIME1 (lime_system_get_windows_console_mode);
 	DEFINE_PRIME1v (lime_system_open_file);
 	DEFINE_PRIME2v (lime_system_open_url);
@@ -4258,7 +4259,6 @@ namespace lime {
 	DEFINE_HL_PRIM (_TIMAGEBUFFER, hl_png_decode_file, _STRING _BOOL _TIMAGEBUFFER);
 	DEFINE_HL_PRIM (_VOID, hl_render_event_manager_register, _FUN (_VOID, _NO_ARG) _TRENDER_EVENT);
 	DEFINE_HL_PRIM (_VOID, hl_sensor_event_manager_register, _FUN (_VOID, _NO_ARG) _TSENSOR_EVENT);
-	DEFINE_HL_PRIM (_I32, hl_sdl_get_ticks, _NO_ARG);
 	DEFINE_HL_PRIM (_BOOL, hl_system_get_allow_screen_timeout, _NO_ARG);
 	DEFINE_HL_PRIM (_BYTES, hl_system_get_device_model, _NO_ARG);
 	DEFINE_HL_PRIM (_BYTES, hl_system_get_device_vendor, _NO_ARG);
@@ -4271,6 +4271,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_BYTES, hl_system_get_platform_name, _NO_ARG);
 	DEFINE_HL_PRIM (_BYTES, hl_system_get_platform_version, _NO_ARG);
 	DEFINE_HL_PRIM (_F64, hl_system_get_timer, _NO_ARG);
+	DEFINE_HL_PRIM (_I64, hl_system_get_timer_ns, _NO_ARG);
 	DEFINE_HL_PRIM (_I32, hl_system_get_windows_console_mode, _I32);
 	DEFINE_HL_PRIM (_VOID, hl_system_open_file, _STRING);
 	DEFINE_HL_PRIM (_VOID, hl_system_open_url, _STRING _STRING);

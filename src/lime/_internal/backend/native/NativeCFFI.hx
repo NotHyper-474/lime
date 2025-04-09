@@ -243,8 +243,6 @@ class NativeCFFI
 
 	@:cffi private static function lime_sensor_event_manager_register(callback:Dynamic, eventObject:Dynamic):Void;
 
-	@:cffi private static function lime_sdl_get_ticks():Int;
-
 	@:cffi private static function lime_system_get_allow_screen_timeout():Bool;
 
 	@:cffi private static function lime_system_set_allow_screen_timeout(value:Bool):Bool;
@@ -270,6 +268,7 @@ class NativeCFFI
 	@:cffi private static function lime_system_get_platform_version():Dynamic;
 
 	@:cffi private static function lime_system_get_timer():Float;
+	@:cffi private static function lime_system_get_timer_ns():Float;
 
 	@:cffi private static function lime_system_open_file(path:String):Void;
 
@@ -528,7 +527,6 @@ class NativeCFFI
 		"lime_render_event_manager_register", "oov", false));
 	private static var lime_sensor_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_sensor_event_manager_register", "oov", false));
-	private static var lime_sdl_get_ticks = new cpp.Callable<Void->Int>(cpp.Prime._loadPrime("lime", "lime_sdl_get_ticks", "i", false));
 	private static var lime_system_get_allow_screen_timeout = new cpp.Callable<Void->Bool>(cpp.Prime._loadPrime("lime",
 		"lime_system_get_allow_screen_timeout", "b", false));
 	private static var lime_system_set_allow_screen_timeout = new cpp.Callable<Bool->Bool>(cpp.Prime._loadPrime("lime",
@@ -550,6 +548,7 @@ class NativeCFFI
 	private static var lime_system_get_platform_version = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_system_get_platform_version",
 		"o", false));
 	private static var lime_system_get_timer = new cpp.Callable<Void->Float>(cpp.Prime._loadPrime("lime", "lime_system_get_timer", "d", false));
+	private static var lime_system_get_timer_ns = new cpp.Callable<Void->Float>(cpp.Prime._loadPrime("lime", "lime_system_get_timer_ns", "d", false));
 	private static var lime_system_open_file = new cpp.Callable<String->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_system_open_file", "sv", false));
 	private static var lime_system_open_url = new cpp.Callable<String->String->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_system_open_url", "ssv", false));
 	private static var lime_text_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
@@ -727,7 +726,6 @@ class NativeCFFI
 	private static var lime_png_decode_file = CFFI.load("lime", "lime_png_decode_file", 3);
 	private static var lime_render_event_manager_register = CFFI.load("lime", "lime_render_event_manager_register", 2);
 	private static var lime_sensor_event_manager_register = CFFI.load("lime", "lime_sensor_event_manager_register", 2);
-	private static var lime_sdl_get_ticks = CFFI.load("lime", "lime_sdl_get_ticks", 0);
 	private static var lime_system_get_allow_screen_timeout = CFFI.load("lime", "lime_system_get_allow_screen_timeout", 0);
 	private static var lime_system_set_allow_screen_timeout = CFFI.load("lime", "lime_system_set_allow_screen_timeout", 1);
 	private static var lime_system_get_device_model = CFFI.load("lime", "lime_system_get_device_model", 0);
@@ -741,6 +739,7 @@ class NativeCFFI
 	private static var lime_system_get_platform_name = CFFI.load("lime", "lime_system_get_platform_name", 0);
 	private static var lime_system_get_platform_version = CFFI.load("lime", "lime_system_get_platform_version", 0);
 	private static var lime_system_get_timer = CFFI.load("lime", "lime_system_get_timer", 0);
+	private static var lime_system_get_timer_ns = CFFI.load("lime", "lime_system_get_timer_ns", 0);
 	private static var lime_system_open_file = CFFI.load("lime", "lime_system_open_file", 1);
 	private static var lime_system_open_url = CFFI.load("lime", "lime_system_open_url", 2);
 	private static var lime_text_event_manager_register = CFFI.load("lime", "lime_text_event_manager_register", 2);
@@ -1181,11 +1180,6 @@ class NativeCFFI
 	@:hlNative("lime", "hl_sensor_event_manager_register") private static function lime_sensor_event_manager_register(callback:Void->Void,
 		eventObject:SensorEventInfo):Void {}
 
-	@:hlNative("lime", "hl_sdl_get_ticks") private static function lime_sdl_get_ticks():Int
-	{
-		return 0;
-	}
-
 	@:hlNative("lime", "hl_system_get_allow_screen_timeout") private static function lime_system_get_allow_screen_timeout():Bool
 	{
 		return false;
@@ -1247,6 +1241,11 @@ class NativeCFFI
 	}
 
 	@:hlNative("lime", "hl_system_get_timer") private static function lime_system_get_timer():Float
+	{
+		return 0;
+	}
+
+	@:hlNative("lime", "hl_system_get_timer_ns") private static function lime_system_get_timer_ns():Float
 	{
 		return 0;
 	}

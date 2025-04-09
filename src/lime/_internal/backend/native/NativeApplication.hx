@@ -293,7 +293,7 @@ class NativeApplication
 			var int32:Float = keyEventInfo.keyCode;
 			var keyCode:KeyCode = Std.int(int32);
 			var modifier:KeyModifier = keyEventInfo.modifier;
-			var timestamp = keyEventInfo.timestamp;
+			var timestamp:haxe.Int64 = keyEventInfo.timestamp;
 
 			switch (type)
 			{
@@ -831,16 +831,15 @@ private enum abstract JoystickEventType(Int)
 	public var type:KeyEventType;
 	public var windowID:Int;
 
-	// TODO: This should probably be an Int64
-	public var timestamp:Int = 0;
+	public var timestamp:haxe.Int64 = 0;
 
-	public function new(type:KeyEventType = null, windowID:Int = 0, keyCode: Float = 0, modifier:Int = 0, timestamp:Int = 0)
+	public function new(type:KeyEventType = null, windowID:Int = 0, keyCode: Float = 0, modifier:Int = 0, timestamp:Null<haxe.Int64> = null)
 	{
 		this.type = type;
 		this.windowID = windowID;
 		this.keyCode = keyCode;
 		this.modifier = modifier;
-		this.timestamp = timestamp;
+		this.timestamp = timestamp ?? haxe.Int64.ofInt(0);
 	}
 
 	public function clone():KeyEventInfo
