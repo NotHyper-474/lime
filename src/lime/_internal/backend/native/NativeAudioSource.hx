@@ -1,6 +1,7 @@
 package lime._internal.backend.native;
 
 import lime.media.openal.ext.EXT_float32;
+import lime.media.openal.ext.EXT_int32;
 import haxe.Int64;
 import haxe.Timer;
 import lime.math.Vector4;
@@ -8,7 +9,6 @@ import lime.media.openal.AL;
 import lime.media.openal.ALBuffer;
 import lime.media.openal.ALSource;
 import lime.media.vorbis.VorbisFile;
-import lime.media.AudioManager;
 import lime.media.AudioSource;
 import lime.utils.UInt8Array;
 
@@ -86,7 +86,7 @@ class NativeAudioSource
 			}
 			else
 			{
-				format = EXT_float32.FORMAT_MONO_FLOAT32;
+				format = parent.buffer.dataFormat == PCM ? EXT_int32.FORMAT_MONO_INT32 : EXT_float32.FORMAT_MONO_FLOAT32;
 			}
 		}
 		else if (parent.buffer.channels == 2)
@@ -101,7 +101,7 @@ class NativeAudioSource
 			}
 			else
 			{
-				format = EXT_float32.FORMAT_STEREO_FLOAT32;
+				format = parent.buffer.dataFormat == PCM ? EXT_int32.FORMAT_STEREO_INT32 : EXT_float32.FORMAT_STEREO_FLOAT32;
 			}
 		}
 

@@ -90,3 +90,6 @@
 [submodule "project/lib/sdl_sound"]
 	path = project/lib/sdl_sound
 	url = https://github.com/icculus/SDL_sound
+[submodule "sdl3_sound"]
+	path = project/lib/sdl3_sound
+	url = https://github.com/icculus/SDL_sound

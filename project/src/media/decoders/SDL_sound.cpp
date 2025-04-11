@@ -1,14 +1,28 @@
 #include "media/decoders/SDL_sound.h"
-#include "SDL_sound.h"
 #include <system/System.h>
 
+#if LIME_SDL3_SOUND
+
+#include "SDL3_sound/SDL_sound.h"
+
+#define AUDIO_U8 SDL_AUDIO_U8
+#define AUDIO_S8 SDL_AUDIO_S8
+#define AUDIO_F32LSB SDL_AUDIO_F32LE
+#define AUDIO_F32MSB SDL_AUDIO_F32BE
+#define AUDIO_S32LSB SDL_AUDIO_S32LE
+#define AUDIO_S32MSB SDL_AUDIO_S32BE
+#define AUDIO_S16LSB SDL_AUDIO_S16LE
+#define AUDIO_S16MSB SDL_AUDIO_S16BE
+
+#else
+#include "SDL_sound.h"
+#endif
 
 namespace lime {
 
 
 	bool SDL_sound::Decode (Resource *resource, AudioBuffer *audioBuffer) {
 		Sound_Sample* sample = NULL;
-		// The OGG decoder also returns 16-bit signed samples so why not?
 
 		if (resource->path) {
 
@@ -23,42 +37,38 @@ namespace lime {
 
 		if (!sample) {
 
-			printf("%s\n", Sound_GetError());
+			LOG_SOUND("SDL_sound: %s\n", Sound_GetError());
 			return false;
 
 		}
 
 		audioBuffer->sampleRate = (int)sample->desired.rate;
 		audioBuffer->channels = (int)sample->desired.channels;
+		audioBuffer->dataFormat = 1;
 
 		switch (sample->desired.format)
 		{
 			case AUDIO_U8:
 			case AUDIO_S8:
 				audioBuffer->bitsPerSample = 8;
-				audioBuffer->dataFormat = 1;
+				break;
+
+			#if LIME_SDL2_SOUND
+			case AUDIO_U16LSB:
+			case AUDIO_U16MSB:
+			#endif
+			case AUDIO_S16LSB:
+			case AUDIO_S16MSB:
+			default:
+				audioBuffer->bitsPerSample = 16;
 				break;
 
 			case AUDIO_F32LSB:
 			case AUDIO_F32MSB:
-				audioBuffer->bitsPerSample = 32;
 				audioBuffer->dataFormat = 3;
-				break;
 			case AUDIO_S32LSB:
 			case AUDIO_S32MSB:
-				// No support for signed 32bit audio formats
-				audioBuffer->channels = 0;
-				audioBuffer->sampleRate = 0;
-				Sound_FreeSample(sample);
-				return false;
-
-			case AUDIO_U16LSB:
-			case AUDIO_S16LSB:
-			case AUDIO_U16MSB:
-			case AUDIO_S16MSB:
-			default:
-				audioBuffer->bitsPerSample = 16;
-				audioBuffer->dataFormat = 1;
+				audioBuffer->bitsPerSample = 32;
 				break;
 		}
 
@@ -88,6 +98,7 @@ namespace lime {
 			if ((sample->flags & SOUND_SAMPLEFLAG_ERROR))
 			{
 				LOG_SOUND("SDL_sound Error: %s\n", Sound_GetError());
+				audioBuffer->data->Resize(0);
 				break;
 			}
 

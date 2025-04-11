@@ -588,6 +588,11 @@ namespace lime {
 
 	}
 
+	double System::GetTimerNS () {
+
+		return 0;
+	}
+
 
 	bool System::SetAllowScreenTimeout (bool allow) {
 

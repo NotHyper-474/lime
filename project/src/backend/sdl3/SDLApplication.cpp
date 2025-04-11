@@ -11,6 +11,10 @@
 #include "emscripten.h"
 #endif
 
+#ifdef LIME_SDL3_SOUND
+#include "SDL3_sound/SDL_sound.h"
+#endif
+
 
 namespace lime {
 
@@ -35,6 +39,14 @@ namespace lime {
 			printf ("Could not initialize SDL: %s.\n", SDL_GetError ());
 
 		}
+
+		#if LIME_SDL3_SOUND
+		if (Sound_Init () == 0) {
+
+			printf ("Could not initialize SDL_sound: %s.\n", Sound_GetError ());
+
+		}
+		#endif
 
 		SDL_SetLogPriority (SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_WARN);
 
@@ -810,6 +822,10 @@ namespace lime {
 
 		applicationEvent.type = EXIT;
 		ApplicationEvent::Dispatch (&applicationEvent);
+
+		#if LIME_SDL3_SOUND
+		Sound_Quit ();
+		#endif
 
 		SDL_Quit ();
 

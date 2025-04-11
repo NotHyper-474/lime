@@ -33,7 +33,9 @@
 	<set name="LIME_PNG" value="1" />
 	<set name="LIME_SDL" value="1" if="mojoal || winrt || switch" />
 	<set name="LIME_SDL3" value="1" unless="LIME_SDL" />
-	<set name="LIME_SDL_SOUND" value="1" />
+	<set name="LIME_SDL3_SOUND" value="1" if="LIME_SDL3" />
+	<set name="LIME_SDL2_SOUND" value="1" unless="LIME_SDL3_SOUND" />
+	<set name="LIME_SDL_SOUND" value="1" if="LIME_SDL2_SOUND || LIME_SDL3_SOUND" />
 	<!-- <set name="LIME_SDL_ANGLE" value="1" if="windows" unless="static_link" /> -->
 	<set name="LIME_SDL_ANGLE" value="1" if="windows LIME_SDL_ANGLE" unless="static_link" />
 	<set name="LIME_SDL_ANGLE" value="1" if="windows angle" unless="static_link" />
@@ -320,15 +322,23 @@
 
 		</section>
 
-		<section if="LIME_SDL_SOUND">
-
-			<compilerflag value="-DLIME_SDL_SOUND" />
+		<section if="LIME_SDL_SOUND" >
 			<compilerflag value="-D__IPHONEOS__" if="ios || tvos" />
 			<compilerflag value="-D__APPLETVOS__" if="tvos" />
 			<compilerflag value="-DAPPLETV" if="tvos" />
 			<compilerflag value="-DHAVE_STDIO_H" unless="windows" />
+			<compilerflag value="-DLIME_SDL_SOUND" />
 
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl_sound/src/" />
+			<section if="LIME_SDL2_SOUND">
+				<compilerflag value="-DLIME_SDL2_SOUND" />
+				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl_sound/src" />
+			</section>
+
+			<section if="LIME_SDL3_SOUND">
+				<compilerflag value="-DLIME_SDL3_SOUND" />
+				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl3_sound/src" />
+				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl3_sound/include" />
+			</section>
 
 			<file name="src/media/decoders/SDL_sound.cpp" />
 
@@ -431,7 +441,7 @@
 	<include name="lib/png-files.xml" />
 	<include name="lib/sdl3-files.xml" unless="LIME_SDL" />
 	<include name="lib/sdl-files.xml" unless="LIME_SDL3" />
-	<include name="lib/sdl_sound-files.xml" />
+	<include name="lib/sdl_sound-files.xml" if="LIME_SDL_SOUND" />
 	<include name="lib/tinyfiledialogs-files.xml" />
 	<include name="lib/vorbis-files.xml" />
 	<include name="lib/vpx-files.xml" />
