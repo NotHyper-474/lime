@@ -319,6 +319,19 @@
 
 			<compilerflag value="-DLIME_SDL3" />
 			<compilerflag value="-DNATIVE_TOOLKIT_SDL_ANGLE" if="NATIVE_TOOLKIT_SDL_ANGLE" />
+			<compilerflag value="-D__IPHONEOS__" if="ios || tvos" />
+			<compilerflag value="-D__APPLETVOS__" if="tvos" />
+			<compilerflag value="-DAPPLETV" if="tvos" />
+			<compilerflag value="-DHAVE_STDIO_H" unless="windows" />
+			<compilerflag value="-DLIME_SDL_SOUND" />
+
+			<file name="src/backend/sdl3/SDLApplication.cpp" />
+			<file name="src/backend/sdl3/SDLGamepad.cpp" />
+			<file name="src/backend/sdl3/SDLJoystick.cpp" />
+			<file name="src/backend/sdl3/SDLKeyCode.cpp" />
+			<file name="src/backend/sdl3/SDLMutex.cpp" />
+			<file name="src/backend/sdl3/SDLSystem.cpp" />
+			<file name="src/backend/sdl3/SDLWindow.cpp" />
 
 		</section>
 
