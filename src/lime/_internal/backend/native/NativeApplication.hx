@@ -839,7 +839,7 @@ private enum abstract JoystickEventType(Int)
 		this.windowID = windowID;
 		this.keyCode = keyCode;
 		this.modifier = modifier;
-		this.timestamp = timestamp ?? haxe.Int64.ofInt(0);
+		this.timestamp = timestamp #if (haxe < "4.3") == null ? #else ?? #end haxe.Int64.ofInt(0) #if (haxe < "4.3") : timestamp #end;
 	}
 
 	public function clone():KeyEventInfo
