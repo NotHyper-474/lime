@@ -323,7 +323,6 @@
 			<compilerflag value="-D__APPLETVOS__" if="tvos" />
 			<compilerflag value="-DAPPLETV" if="tvos" />
 			<compilerflag value="-DHAVE_STDIO_H" unless="windows" />
-			<compilerflag value="-DLIME_SDL_SOUND" />
 
 			<file name="src/backend/sdl3/SDLApplication.cpp" />
 			<file name="src/backend/sdl3/SDLGamepad.cpp" />
