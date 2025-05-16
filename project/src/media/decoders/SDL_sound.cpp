@@ -8,7 +8,6 @@ namespace lime {
 
 	bool SDL_sound::Decode (Resource *resource, AudioBuffer *audioBuffer) {
 		Sound_Sample* sample = NULL;
-		// The OGG decoder also returns 16-bit signed samples so why not?
 
 		if (resource->path) {
 
@@ -16,7 +15,7 @@ namespace lime {
 
 		} else {
 
-			// FIXME?: WAV files require ext to work due to a bug in SDL_sound
+			// FIXME?: WAV files require specifying ext to work due to a bug in SDL_sound
 			sample = Sound_NewSampleFromMem(resource->data->b, resource->data->length, "wav", NULL, 65536);
 
 		}
@@ -30,13 +29,13 @@ namespace lime {
 
 		audioBuffer->sampleRate = (int)sample->desired.rate;
 		audioBuffer->channels = (int)sample->desired.channels;
+		audioBuffer->dataFormat = 1;
 
 		switch (sample->desired.format)
 		{
 			case AUDIO_U8:
 			case AUDIO_S8:
 				audioBuffer->bitsPerSample = 8;
-				audioBuffer->dataFormat = 1;
 				break;
 
 			case AUDIO_F32LSB:
@@ -46,9 +45,10 @@ namespace lime {
 				break;
 			case AUDIO_S32LSB:
 			case AUDIO_S32MSB:
-				// No support for signed 32bit audio formats
+				// No support for signed 32bit int audio formats
 				audioBuffer->channels = 0;
 				audioBuffer->sampleRate = 0;
+				audioBuffer->dataFormat = 0;
 				Sound_FreeSample(sample);
 				return false;
 
@@ -58,13 +58,11 @@ namespace lime {
 			case AUDIO_S16MSB:
 			default:
 				audioBuffer->bitsPerSample = 16;
-				audioBuffer->dataFormat = 1;
 				break;
 		}
 
 		// TODO: Add support for streaming sound in higher APIs
 
-		// TODO: Do we care if duration can't be retrieved?
 		Sint32 duration = Sound_GetDuration(sample);
 		if (duration == -1)
 		{
@@ -75,6 +73,9 @@ namespace lime {
 
 		Uint8* bytes = NULL;
 		Uint32 bytesWritten = 0;
+		// AudioBuffer->Resize is a bit expensive so we allocate an estimate based on the duration
+		Uint32 estimatedSize = (Uint32)((duration / 1000) * audioBuffer->sampleRate * audioBuffer->channels * (audioBuffer->bitsPerSample / 8));
+		audioBuffer->data->Resize(estimatedSize);
 
 		do
 		{
@@ -88,22 +89,29 @@ namespace lime {
 			if ((sample->flags & SOUND_SAMPLEFLAG_ERROR))
 			{
 				LOG_SOUND("SDL_sound Error: %s\n", Sound_GetError());
+				audioBuffer->data->Resize(0);
+				bytesWritten = 0;
 				break;
 			}
 
 			if (decodedBytes > 0)
 			{
-				Uint32 copySize = decodedBytes;
+				if (bytesWritten + decodedBytes > audioBuffer->data->length)
+				{
+					//printf("Had to resize to %d\n", audioBuffer->data->length + decodedBytes);
+					audioBuffer->data->Resize(audioBuffer->data->length + decodedBytes);
+				}
 
-				audioBuffer->data->Resize(bytesWritten + copySize);
 				bytes = audioBuffer->data->buffer->b;
+				memcpy(bytes + bytesWritten, sample->buffer, decodedBytes);
 
-				memcpy(bytes + bytesWritten, sample->buffer, copySize);
-
-				bytesWritten += copySize;
+				bytesWritten += decodedBytes;
 			}
 
 		} while ((sample->flags & SOUND_SAMPLEFLAG_EOF) == 0);
+
+		//printf("SDL_sound: Decoded %u bytes\n", bytesWritten);
+		//printf("SDL_sound: Final buffer size: %u\n", audioBuffer->data->length);
 
 		Sound_FreeSample(sample);
 		return bytesWritten > 0;
