@@ -27,8 +27,6 @@ namespace lime {
 
 		}
 
-		audioBuffer->sampleRate = (int)sample->desired.rate;
-		audioBuffer->channels = (int)sample->desired.channels;
 		audioBuffer->dataFormat = 1;
 
 		switch (sample->desired.format)
@@ -46,8 +44,6 @@ namespace lime {
 			case AUDIO_S32LSB:
 			case AUDIO_S32MSB:
 				// No support for signed 32bit int audio formats
-				audioBuffer->channels = 0;
-				audioBuffer->sampleRate = 0;
 				audioBuffer->dataFormat = 0;
 				Sound_FreeSample(sample);
 				return false;
@@ -60,6 +56,9 @@ namespace lime {
 				audioBuffer->bitsPerSample = 16;
 				break;
 		}
+
+		audioBuffer->sampleRate = (int)sample->desired.rate;
+		audioBuffer->channels = (int)sample->desired.channels;
 
 		// TODO: Add support for streaming sound in higher APIs
 
@@ -74,17 +73,12 @@ namespace lime {
 		Uint8* bytes = NULL;
 		Uint32 bytesWritten = 0;
 		// AudioBuffer->Resize is a bit expensive so we allocate an estimate based on the duration
-		Uint32 estimatedSize = (Uint32)((duration / 1000) * audioBuffer->sampleRate * audioBuffer->channels * (audioBuffer->bitsPerSample / 8));
+		Uint32 estimatedSize = (Uint32)((duration / 1000.0) * audioBuffer->sampleRate * audioBuffer->channels * (audioBuffer->bitsPerSample / 8));
 		audioBuffer->data->Resize(estimatedSize);
 
 		do
 		{
 			Uint32 decodedBytes = Sound_Decode(sample);
-
-			if ((sample->flags & SOUND_SAMPLEFLAG_EAGAIN))
-			{
-				continue;
-			}
 
 			if ((sample->flags & SOUND_SAMPLEFLAG_ERROR))
 			{
@@ -98,8 +92,7 @@ namespace lime {
 			{
 				if (bytesWritten + decodedBytes > audioBuffer->data->length)
 				{
-					//printf("Had to resize to %d\n", audioBuffer->data->length + decodedBytes);
-					audioBuffer->data->Resize(audioBuffer->data->length + decodedBytes);
+					audioBuffer->data->Resize(bytesWritten + decodedBytes);
 				}
 
 				bytes = audioBuffer->data->buffer->b;
@@ -110,8 +103,11 @@ namespace lime {
 
 		} while ((sample->flags & SOUND_SAMPLEFLAG_EOF) == 0);
 
-		//printf("SDL_sound: Decoded %u bytes\n", bytesWritten);
-		//printf("SDL_sound: Final buffer size: %u\n", audioBuffer->data->length);
+		// Prevent garbage audio
+		if (bytesWritten < estimatedSize)
+		{
+			audioBuffer->data->Resize(bytesWritten);
+		}
 
 		Sound_FreeSample(sample);
 		return bytesWritten > 0;
