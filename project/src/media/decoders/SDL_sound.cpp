@@ -1,9 +1,33 @@
 #include "media/decoders/SDL_sound.h"
-#include "SDL_sound.h"
 #include <system/System.h>
 
 
 namespace lime {
+
+	Sound_Sample* SDL_sound::FromBytes (Bytes* bytes) {
+		Sound_Sample* sample = NULL;
+
+		if (bytes) {
+
+			// FIXME?: WAV files require specifying ext to work due to a bug in SDL_sound
+			sample = Sound_NewSampleFromMem(bytes->b, bytes->length, "wav", NULL, 65536);
+
+		}
+
+		return sample;
+	}
+
+	Sound_Sample* SDL_sound::FromFile (const char* path) {
+		Sound_Sample* sample = NULL;
+
+		if (path) {
+
+			sample = Sound_NewSampleFromFile(path, NULL, 65536);
+
+		}
+
+		return sample;
+	}
 
 
 	bool SDL_sound::Decode (Resource *resource, AudioBuffer *audioBuffer) {
@@ -11,18 +35,17 @@ namespace lime {
 
 		if (resource->path) {
 
-			sample = Sound_NewSampleFromFile(resource->path, NULL, 65536);
+			sample = SDL_sound::FromFile(resource->path);
 
 		} else {
 
-			// FIXME?: WAV files require specifying ext to work due to a bug in SDL_sound
-			sample = Sound_NewSampleFromMem(resource->data->b, resource->data->length, "wav", NULL, 65536);
+			sample = SDL_sound::FromBytes(resource->data);
 
 		}
 
 		if (!sample) {
 
-			printf("%s\n", Sound_GetError());
+			LOG_SOUND("%s\n", Sound_GetError());
 			return false;
 
 		}
@@ -43,7 +66,7 @@ namespace lime {
 				break;
 			case AUDIO_S32LSB:
 			case AUDIO_S32MSB:
-				// No support for signed 32bit int audio formats
+				// No support for signed 32bit int audio formats (requires OpenAL 1.23 minimum)
 				audioBuffer->dataFormat = 0;
 				Sound_FreeSample(sample);
 				return false;
@@ -60,8 +83,6 @@ namespace lime {
 		audioBuffer->sampleRate = (int)sample->desired.rate;
 		audioBuffer->channels = (int)sample->desired.channels;
 
-		// TODO: Add support for streaming sound in higher APIs
-
 		Sint32 duration = Sound_GetDuration(sample);
 		if (duration == -1)
 		{
@@ -72,8 +93,8 @@ namespace lime {
 
 		Uint8* bytes = NULL;
 		Uint32 bytesWritten = 0;
-		// AudioBuffer->Resize is a bit expensive so we allocate an estimate based on the duration
-		Uint32 estimatedSize = (Uint32)((duration / 1000.0) * audioBuffer->sampleRate * audioBuffer->channels * (audioBuffer->bitsPerSample / 8));
+		// AudioBuffer->Resize is a bit expensive so we first allocate an estimate based on the duration
+		Uint32 estimatedSize = (Uint32)((duration / 1000.) * audioBuffer->sampleRate * audioBuffer->channels * (audioBuffer->bitsPerSample / 8));
 		audioBuffer->data->Resize(estimatedSize);
 
 		do
