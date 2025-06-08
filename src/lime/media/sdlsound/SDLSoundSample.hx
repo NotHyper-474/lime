@@ -11,8 +11,9 @@ import haxe.io.Bytes;
 @:nullSafety
 class SDLSoundSample
 {
-	@:noCompletion private var handle:Dynamic;
 	public var bytesDecoded(default, null):Int;
+
+	@:noCompletion private var handle:Dynamic;
 
 	public var bufferSize(get, set):Int;
 

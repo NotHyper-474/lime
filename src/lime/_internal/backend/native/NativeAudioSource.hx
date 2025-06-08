@@ -3,6 +3,7 @@ package lime._internal.backend.native;
 import lime.media.openal.ext.EXT_float32;
 import haxe.Int64;
 import haxe.Timer;
+import haxe.io.Bytes;
 import lime.math.Vector4;
 import lime.media.openal.AL;
 import lime.media.openal.ALBuffer;
@@ -282,7 +283,7 @@ class NativeAudioSource
 		#if lime_sdlsound
 		if (length == null)
 		{
-			var buffer = new UInt8Array(0);
+			var buffer = new UInt8Array(Bytes.alloc(0));
 			var read = soundSample.decodeAll(buffer.buffer);
 
 			return buffer;

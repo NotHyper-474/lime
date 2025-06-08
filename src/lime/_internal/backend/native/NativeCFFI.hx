@@ -6991,8 +6991,8 @@ class NativeCFFI
 	private static var lime_sdl_sound_info:Dynamic->Dynamic = CFFI.load("lime", "lime_sdl_sound_info", 1);
 	private static var lime_sdl_sound_duration:Dynamic->Int = CFFI.load("lime", "lime_sdl_sound_duration", 1);
 	private static var lime_sdl_sound_get_buffer_size:Dynamic->Int = CFFI.load("lime", "lime_sdl_sound_get_buffer_size", 1);
-	private static var lime_sdl_sound_set_buffer_size:Dynamic->Int->Bool = CFFI.load("lime", "lime_sdl_sound_get_buffer_size", 2);
-	private static var lime_sdl_sound_decode:Dynamic->Dynamic->Void = CFFI.load("lime", "lime_sdl_sound_decode", 2);
+	private static var lime_sdl_sound_set_buffer_size:Dynamic->Int->Bool = CFFI.load("lime", "lime_sdl_sound_set_buffer_size", 2);
+	private static var lime_sdl_sound_decode:Dynamic->Dynamic->Int = CFFI.load("lime", "lime_sdl_sound_decode", 2);
 	private static var lime_sdl_sound_decode_all:Dynamic->Dynamic->Int = CFFI.load("lime", "lime_sdl_sound_decode_all", 2);
 	private static var lime_sdl_sound_seekable:Dynamic->Bool = CFFI.load("lime", "lime_sdl_sound_seekable", 1);
 	private static var lime_sdl_sound_seek:Dynamic->Int->Void = CFFI.load("lime", "lime_sdl_sound_seek", 2);
@@ -7002,14 +7002,14 @@ class NativeCFFI
 
 	#if hl
 
-	@:hlNative("lime", "hl_sdl_sound_from_bytes") private static function lime_sdl_sound_from_bytes(bytes:Dynamic):CFFIPointer
+	@:hlNative("lime", "hl_sdl_sound_from_file") private static function lime_sdl_sound_from_file(path:String):CFFIPointer
 	{
 		return null;
 	}
 
-	@:hlNative("lime", "hl_sdl_sound_from_file") private static function lime_sdl_sound_from_file(path:String):CFFIPointer
+	@:hlNative("lime", "hl_sdl_sound_from_bytes") private static function lime_sdl_sound_from_bytes(bytes:Bytes):CFFIPointer
 	{
-		return null;
+		return 0;
 	}
 
 	@:hlNative("lime", "hl_sdl_sound_free") private static function lime_sdl_sound_free(sample:CFFIPointer):Void {}
@@ -7034,7 +7034,10 @@ class NativeCFFI
 		return false;
 	}
 
-	@:hlNative("lime", "hl_sdl_sound_decode") private static function lime_sdl_sound_decode(sample:CFFIPointer, buffer:Bytes):Void {}
+	@:hlNative("lime", "hl_sdl_sound_decode") private static function lime_sdl_sound_decode(sample:CFFIPointer, buffer:Bytes):Int
+	{
+		return 0;
+	}
 
 	@:hlNative("lime", "hl_sdl_sound_decode_all") private static function lime_sdl_sound_decode_all(sample:CFFIPointer, buffer:Bytes):Int
 	{

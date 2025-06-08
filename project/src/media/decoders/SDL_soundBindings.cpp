@@ -78,21 +78,13 @@ namespace lime {
 
 	}
 
-	HL_PRIM HL_CFFIPointer* HL_NAME(hl_sdl_sound_from_bytes) (Bytes* data) {
+	value lime_sdl_sound_from_bytes (value data) {
 
-		Sound_Sample* soundSample = SDL_sound::FromBytes (data);
+		if (val_is_null (data)) {
 
-		if (soundSample) {
-
-			return HLCFFIPointer ((void*)(uintptr_t)soundSample, (hl_finalizer)hl_gc_sound_sample);
+			return alloc_null ();
 
 		}
-
-		return NULL;
-
-	}
-
-	value lime_sdl_sound_from_bytes (value data) {
 
 		Bytes bytes;
 		bytes.Set (data);
@@ -106,6 +98,20 @@ namespace lime {
 		}
 
 		return alloc_null ();
+
+	}
+
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_sdl_sound_from_bytes) (Bytes* data) {
+
+		Sound_Sample* soundSample = SDL_sound::FromBytes (data);
+
+		if (soundSample) {
+
+			return HLCFFIPointer ((void*)(uintptr_t)soundSample, (hl_finalizer)hl_gc_sound_sample);
+
+		}
+
+		return NULL;
 
 	}
 
@@ -306,6 +312,7 @@ namespace lime {
 				memcpy(buffer->b, sample->buffer, result);
 			}
 
+			return result;
 		}
 
 		return 0;
@@ -335,12 +342,6 @@ namespace lime {
 		}
 
 		Sound_Sample* sample = (Sound_Sample*)(uintptr_t)soundSample->ptr;
-
-		if (sample) {
-
-			return Sound_DecodeAll (sample);
-
-		}
 
 		return decode_all_real(sample, buffer);
 	}
@@ -466,26 +467,26 @@ namespace lime {
 	DEFINE_PRIME1  (lime_sdl_sound_get_flags		);
 
 	#ifndef _TBYTES
-	#define _TBYTES _OBJ (_I32 _BYTES);
+	#define _TBYTES _OBJ (_I32 _BYTES)
 	#endif
 
 	#ifndef _TCFFIPOINTER
 	#define _TCFFIPOINTER _DYN
 	#endif
 
-	DEFINE_HL_PRIM(_TCFFIPOINTER,	hl_sdl_sound_from_file,			_STRING);
-	DEFINE_HL_PRIM(_TCFFIPOINTER,	hl_sdl_sound_from_bytes,		_TBYTES);
-	DEFINE_HL_PRIM(_VOID,			hl_sdl_sound_free, 				_TCFFIPOINTER);
-	DEFINE_HL_PRIM(_DYN,			hl_sdl_sound_info,				_TCFFIPOINTER);
-	DEFINE_HL_PRIM(_I32,			hl_sdl_sound_duration,			_TCFFIPOINTER);
-	DEFINE_HL_PRIM(_I32,			hl_sdl_sound_get_buffer_size,	_TCFFIPOINTER);
-	DEFINE_HL_PRIM(_BOOL,			hl_sdl_sound_set_buffer_size,	_TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM(_I32,			hl_sdl_sound_decode,			_TCFFIPOINTER _TBYTES);
-	DEFINE_HL_PRIM(_I32,			hl_sdl_sound_decode_all,		_TCFFIPOINTER _TBYTES);
-	DEFINE_HL_PRIM(_VOID,			hl_sdl_sound_seek,				_TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM(_BOOL,			hl_sdl_sound_seekable,			_TCFFIPOINTER);
-	DEFINE_HL_PRIM(_VOID,			hl_sdl_sound_rewind,			_TCFFIPOINTER);
-	DEFINE_HL_PRIM(_I32,			hl_sdl_sound_get_flags,			_TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_TCFFIPOINTER,	hl_sdl_sound_from_file,			_STRING);
+	DEFINE_HL_PRIM (_TCFFIPOINTER,	hl_sdl_sound_from_bytes,		_TBYTES);
+	DEFINE_HL_PRIM (_VOID,			hl_sdl_sound_free, 				_TCFFIPOINTER);
+	DEFINE_HL_PRIM (_DYN,			hl_sdl_sound_info,				_TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32,			hl_sdl_sound_duration,			_TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32,			hl_sdl_sound_get_buffer_size,	_TCFFIPOINTER);
+	DEFINE_HL_PRIM (_BOOL,			hl_sdl_sound_set_buffer_size,	_TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_I32,			hl_sdl_sound_decode,			_TCFFIPOINTER _TBYTES);
+	DEFINE_HL_PRIM (_I32,			hl_sdl_sound_decode_all,		_TCFFIPOINTER _TBYTES);
+	DEFINE_HL_PRIM (_VOID,			hl_sdl_sound_seek,				_TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_BOOL,			hl_sdl_sound_seekable,			_TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID,			hl_sdl_sound_rewind,			_TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32,			hl_sdl_sound_get_flags,			_TCFFIPOINTER);
 }
 
 

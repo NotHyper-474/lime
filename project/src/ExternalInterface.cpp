@@ -4143,7 +4143,7 @@ namespace lime {
 	#define _TTOUCH_EVENT _OBJ (_I32 _F64 _F64 _I32 _F64 _I32 _F64 _F64)
 	#define _TVECTOR2 _OBJ (_F64 _F64)
 	#define _TVORBISFILE _OBJ (_I32 _DYN)
-	#define _TSDL_SOUNDSAMPLE _OBJ (_DYN)
+	#define _TSDL_SOUNDSAMPLE _OBJ (_I32 _DYN)
 	#define _TWINDOW_EVENT _OBJ (_I32 _I32 _I32 _I32 _I32 _I32)
 
 	#define _TARRAYBUFFER _TBYTES
