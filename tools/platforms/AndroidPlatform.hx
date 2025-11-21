@@ -85,7 +85,7 @@ class AndroidPlatform extends PlatformTarget
 
 		if (project.targetFlags.exists("simulator") || project.targetFlags.exists("emulator"))
 		{
-			defaults.architectures = [Architecture.X86];
+			defaults.architectures = [Architecture.X64, Architecture.ARM64];
 		}
 		else
 		{
@@ -143,7 +143,7 @@ class AndroidPlatform extends PlatformTarget
 		var hasX64 = ArrayTools.containsValue(project.architectures, Architecture.X64);
 		var hasX86 = ArrayTools.containsValue(project.architectures, Architecture.X86);
 
-		var architectures = [];
+		var architectures:Array<Architecture> = [];
 
 		if (hasARM64) architectures.push(Architecture.ARM64);
 		if (hasARMV7) architectures.push(Architecture.ARMV7);
@@ -283,7 +283,7 @@ class AndroidPlatform extends PlatformTarget
 				build = "-release";
 			}
 
-			var outputDirectory = null;
+			var outputDirectory:String = null;
 			if (project.config.exists("android.gradle-build-directory"))
 			{
 				if (targetFlags.exists("bundle"))
@@ -362,7 +362,7 @@ class AndroidPlatform extends PlatformTarget
 			}
 		}
 
-		var outputDirectory = null;
+		var outputDirectory:String = null;
 
 		if (project.config.exists("android.gradle-build-directory"))
 		{
@@ -401,7 +401,11 @@ class AndroidPlatform extends PlatformTarget
 		var x64 = (ArrayTools.containsValue(project.architectures, Architecture.X64));
 		var x86 = (command == "rebuild" || ArrayTools.containsValue(project.architectures, Architecture.X86));
 
-		var commands = [];
+		var commands:Array<Array<String>> = [];
+		var minSDKVer = 21;
+		var platformNumberDefine = '-DPLATFORM_NUMBER=$minSDKVer';
+		// Required for older ndk and gcc toolchain
+		var platformDefine = '-DPLATFORM=$minSDKVer';
 
 		var minimumSDKVersion = project.config.getInt("android.minimum-sdk-version", 28);
 
@@ -462,6 +466,11 @@ class AndroidPlatform extends PlatformTarget
 			project.haxeflags.push("-xml " + targetDirectory + "/types.xml");
 		}
 
+		if (project.targetFlags.exists("json"))
+		{
+			project.haxeflags.push("--json " + targetDirectory + "/types.json");
+		}
+
 		var context = project.templateContext;
 
 		context.ANDROID_PLAY_ASSETS_DELIVERY_PACKS = [];
@@ -502,9 +511,11 @@ class AndroidPlatform extends PlatformTarget
 			"android.permission.ACCESS_NETWORK_STATE"
 		]);
 		context.ANDROID_GRADLE_VERSION = project.config.getString("android.gradle-version", "8.9");
-		context.ANDROID_GRADLE_PLUGIN = project.config.getString("android.gradle-plugin", "8.7.1");
+		context.ANDROID_GRADLE_PLUGIN = project.config.getString("android.gradle-plugin", "8.7.3");
 		context.ANDROID_USE_ANDROIDX = project.config.getString("android.useAndroidX", "true");
 		context.ANDROID_ENABLE_JETIFIER = project.config.getString("android.enableJetifier", "false");
+		context.ANDROID_GRADLE_PROPERTIES = project.config.getKeyValueArray("android.gradle-properties");
+		context.ANDROID_DISPLAY_CUTOUT = project.config.getString("android.layoutInDisplayCutoutMode", "default");
 
 		context.ANDROID_MANIFEST = project.config.getKeyValueArray("android.manifest", {
 			"android:versionCode": project.meta.buildNumber,
@@ -564,6 +575,29 @@ class AndroidPlatform extends PlatformTarget
 		context.ANDROID_SDK_ESCAPED = StringTools.replace(context.ENV_ANDROID_SDK, "\\", "\\\\");
 		context.ANDROID_NDK_ROOT_ESCAPED = StringTools.replace(context.ENV_ANDROID_NDK_ROOT, "\\", "\\\\");
 		context.ANDROID_NDK_VERSION = getNdkVer();
+
+		// we need to specify ndkVersion in build.gradle, and the value can be
+		// found in the NDK's source.properties file
+		var ndkSrcPropsPath = Path.join([context.ENV_ANDROID_NDK_ROOT, "source.properties"]);
+		if (FileSystem.exists(ndkSrcPropsPath))
+		{
+			try
+			{
+				var srcProps = File.getContent(ndkSrcPropsPath);
+				var lines = srcProps.split("\n");
+				for (line in lines)
+				{
+					var parts = ~/\s+=\s+/.split(StringTools.trim(line));
+					if (parts.length == 2 && parts[0] == "Pkg.Revision")
+					{
+						context.ANDROID_NDK_VERSION = parts[1];
+					}
+				}
+			}
+			catch (e:Dynamic)
+			{
+			}
+		}
 
 		if (Reflect.hasField(context, "KEY_STORE")) context.KEY_STORE = StringTools.replace(context.KEY_STORE, "\\", "\\\\");
 		if (Reflect.hasField(context, "KEY_STORE_ALIAS")) context.KEY_STORE_ALIAS = StringTools.replace(context.KEY_STORE_ALIAS, "\\", "\\\\");

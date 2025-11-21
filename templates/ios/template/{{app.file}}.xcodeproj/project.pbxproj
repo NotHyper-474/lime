@@ -434,6 +434,7 @@
 				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
+					"-lmbedtls_hxcpp",
 					::foreach ndlls:: "-l::name::",
 					::end::
 					::foreach linkedLibraries:: "-l::__current__::",
@@ -494,6 +495,7 @@
 				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
+					"-lmbedtls_hxcpp",
 					::foreach ndlls:: "-l::name::",
 					::end::
 					::foreach linkedLibraries:: "-l::__current__::",
