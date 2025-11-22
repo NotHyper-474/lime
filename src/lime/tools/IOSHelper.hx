@@ -450,7 +450,7 @@ class IOSHelper
 				System.runCommand("", "xcrun", ["devicectl", "device", "install", "app", "--device", deviceUUID, FileSystem.fullPath(applicationPath)]);
 
 				// Check if device is unlocked before launching (required for console logging)
-				waitForDeviceUnlock(deviceUUID, deviceName);
+				//waitForDeviceUnlock(deviceUUID, deviceName);
 
 				System.runCommand("", "xcrun", ["devicectl", "device", "process", "launch", "--console", "--device", deviceUUID, project.meta.packageName]);
 			} else {
