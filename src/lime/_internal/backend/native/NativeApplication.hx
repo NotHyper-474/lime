@@ -674,6 +674,9 @@ class NativeApplication
 			}
 		}
 
+		#if (haxe5 && target.threaded)
+		sys.thread.Thread.current().events.loopOnce();
+		#else
 		#if (haxe_ver >= 4.2)
 		#if target.threaded
 		sys.thread.Thread.current().events.progress();
@@ -684,6 +687,7 @@ class NativeApplication
 		#end
 		#else
 		@:privateAccess haxe.EntryPoint.processEvents();
+		#end
 		#end
 		#end
 	}

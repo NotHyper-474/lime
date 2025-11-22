@@ -373,7 +373,7 @@ class IOSPlatform extends PlatformTarget
 			var name:String = null;
 			var path:String = null;
 			var fileType:String = null;
-			var embed:Bool;
+			var embed:Bool = false;
 
 			if (Path.extension(dependency.name) == "tbd")
 			{
