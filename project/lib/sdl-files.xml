@@ -130,6 +130,7 @@
 
             <compilerflag value="-I/usr/include/dbus-1.0/" />
             <compilerflag value="-I/usr/lib/dbus-1.0/include" />
+            <compilerflag value="-I/usr/lib/x86_64-linux-gnu/dbus-1.0/include/" />
 
              <section if="HXCPP_ARMV7 || HXCPP_ARM64">
                 <compilerflag value="-mfpu=neon" unless="HXCPP_ARM64" />
@@ -179,6 +180,25 @@
                 <file name="${NATIVE_TOOLKIT_PATH}/custom/sdl/include/wayland-protocols/xdg-decoration-unstable-v1-protocol.c"/>
                 <file name="${NATIVE_TOOLKIT_PATH}/custom/sdl/include/wayland-protocols/xdg-shell-protocol.c"/>
                 <file name="${NATIVE_TOOLKIT_PATH}/custom/sdl/include/wayland-protocols/xdg-output-unstable-v1-protocol.c"/>
+            </section>
+
+            <section if="rpi">
+
+                <compilerflag value="-mfpu=neon" unless="HXCPP_ARM64" />
+                <compilerflag value="-mfloat-abi=hard" unless="HXCPP_ARM64" />
+                <compilerflag value="-I-abi=hard" />
+
+                <compilerflag value="-I/opt/vc/include" />
+                <compilerflag value="-I/opt/vc/include/interface/vcos/pthreads" />
+                <compilerflag value="-I/opt/vc/include/interface/vmcs_host/linux" />
+                <compilerflag value="-I/usr/include/dbus-1.0" />
+                <compilerflag value="-I/usr/include/interface/vcos/pthreads" />
+                <compilerflag value="-I/usr/include/interface/vmcs_host/linux" />
+                <compilerflag value="-I/usr/include/libdrm" />
+                <compilerflag value="-I/usr/lib/arm-linux-gnueabihf/dbus-1.0/include" unless="HXCPP_ARM64" />
+                <compilerflag value="-I/usr/lib/aarch64-linux-gnu/dbus-1.0/include" if="HXCPP_ARM64" />
+                <compilerflag value="-I/usr/local/include" />
+
             </section>
         </section>
 
@@ -424,6 +444,7 @@
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/linux/SDL_evdev_capabilities.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/linux/SDL_evdev_kbd.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/linux/SDL_evdev.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/linux/SDL_fcitx.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/linux/SDL_ibus.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/linux/SDL_ime.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/linux/SDL_threadprio.c" />
@@ -440,6 +461,7 @@
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/SDL_x11clipboard.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/SDL_x11dyn.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/SDL_x11events.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/SDL_x11xfixes.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/SDL_x11framebuffer.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/SDL_x11keyboard.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/SDL_x11messagebox.c" />
@@ -639,7 +661,6 @@
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/raspberry/SDL_rpimouse.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/raspberry/SDL_rpiopengles.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/raspberry/SDL_rpivideo.c" />
-            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/linux/SDL_fcitx.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/SDL_x11xfixes.c" />
         </section>
 

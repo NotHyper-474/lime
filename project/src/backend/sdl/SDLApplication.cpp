@@ -41,6 +41,10 @@ namespace lime {
 		initFlags |= SDL_INIT_AUDIO;
 		#endif
 
+		#if defined (HX_LINUX)
+		SDL_setenv("SDL_VIDEODRIVER", "wayland,x11", 0);
+		#endif
+
 		if (SDL_Init (initFlags) != 0) {
 
 			printf ("Could not initialize SDL: %s.\n", SDL_GetError ());
